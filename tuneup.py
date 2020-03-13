@@ -6,15 +6,21 @@ __author__ = "???"
 
 import cProfile
 import pstats
-import functools
+import timeit
 
 
 def profile(func):
-    """A function that can be used as a decorator to measure performance"""
-    # You need to understand how decorators are constructed and used.
-    # Be sure to review the lesson material on decorators, they are used
-    # extensively in Django and Flask.
-    raise NotImplementedError("Complete this decorator function")
+    def profiled_func(args):
+        profile = cProfile.Profile()
+        try:
+            profile.enable()
+            result = func(args)
+            profile.disable()
+            return result
+        finally:
+            ps = pstats.Stats(profile).sort_stats('cumulative')
+            ps.print_stats()
+    return profiled_func
 
 
 def read_movies(src):
@@ -26,12 +32,14 @@ def read_movies(src):
 
 def is_duplicate(title, movies):
     """returns True if title is within movies list"""
-    for movie in movies:
-        if movie.lower() == title.lower():
-            return True
-    return False
+    # for movie in movies:
+    #     if movie.lower() == title.lower():
+    #         return True
+    # return False
+    return True if title in movies else False
 
 
+@profile
 def find_duplicate_movies(src):
     """Returns a list of duplicate movies from a src list"""
     movies = read_movies(src)
@@ -45,7 +53,12 @@ def find_duplicate_movies(src):
 
 def timeit_helper():
     """Part A:  Obtain some profiling measurements using timeit"""
-    # YOUR CODE GOES HERE
+    t = timeit.Timer("main()", "print('Running main')")
+    result = t.repeat(repeat=7, number=3)
+    average = [res / 3 for res in result]
+    print("Result: {}".format(result))
+    print("Averages: {}".format(average))
+    print("Min: {}".format(min(average)))
 
 
 def main():
